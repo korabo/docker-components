@@ -15,7 +15,7 @@ services:
     - "13306:3306"
     # --- WSL2 ---
     volumes:
-    - "./var_lib_mysql_dev:/var/lib/mysql"
+    - "./var_lib_mysql_lcl:/var/lib/mysql"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
