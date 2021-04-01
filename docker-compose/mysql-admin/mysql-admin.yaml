@@ -1,0 +1,31 @@
+version: "3.2"
+# docker-compose -f docker-compose.yml up -d
+
+services:
+  lcl-db:
+    image: mysql:5.7
+    hostname: 'lcl-db'
+    restart: always
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: mypassword
+    ports:
+    - "13306:3306"
+    # --- WSL2 ---
+    volumes:
+    - "./var_lib_mysql_dev:/var/lib/mysql"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    hostname: 'phpmyadmin'
+    environment:
+      PMA_HOST: lcl-db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_PASSWORD: admin
+    ports:
+    - 0.0.0.0:18080:80
+    # depends_on:
+    # - lcl-db
