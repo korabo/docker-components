@@ -1,12 +1,25 @@
 # MySQL(MariaDB) + PhpMyAdmin
 
-## run containers
+## executing containers
+- Options: <ps|up -d|down|stop|rm>
+### start as daemon
 ```
-# options: <ps|up -d|down|stop|rm>
 docker-compose -f mysql-admin.yaml up -d
 ```
-
-### Usage
+### list processes
+```
+docker-compose -f mysql-admin.yaml ps
+```
+### stop containers
+```
+docker-compose -f mysql-admin.yaml down
+```
+### remove container
+```
+docker-compose -f mysql-admin.yaml rm
+```
+---
+## How to Use MySQL DB
 - from Browser (PHP MyAdmin)
   - http://docker-machine-ip:18080/
   - 例） http://localhost:18080/
@@ -26,6 +39,7 @@ docker-compose -f mysql-admin.yaml up -d
   データベース mydb
 ```
 
+# Definitions
 ## MySQL
 https://hub.docker.com/_/mysql
 
@@ -47,17 +61,6 @@ https://www.phpmyadmin.net/
 ### config
 - image: phpmyadmin/phpmyadmin
 - hostname: 'phpmyadmin'
-```
-ports:
-  - 18080:8080
-```
-
-## Adminer
-https://www.adminer.org/
-
-### config
-- image: adminer
-- name: adminer
 ```
 ports:
   - 18080:8080
