@@ -1,4 +1,4 @@
-# CentOS7 with Python36, Node10, PHP5.6,7.3,7.4,8.0 MySQL, etc for develop
+# CentOS7 with Python, NodeJS, PHP MySQL, etc for develop/deploy
 
 # https://kappariver.hatenablog.jp/entry/2018/08/12/000919
 # https://qiita.com/bezeklik/items/9766003c19f9664602fe
@@ -66,29 +66,43 @@ RUN yum install -y \
         nfs-utils nfs-utils-lib
 
 
-# ##### PYTHON36 ##### #
-
-# Install Python36
+# SCL
 # https://www.softwarecollections.org/en/scls/rhscl/rh-python36/
 # RHEL7
 # RUN yum-config-manager --enable rhel-server-rhscl-7-rpms \
 #   && yum-config-manager --enable rhel-server-rhscl-beta-7-rpms \
 # CentOS7
-RUN yum-config-manager --enable centos-sclo-rh-testing \
-  && yum install -y rh-python36
+# RUN yum-config-manager --enable centos-sclo-rh-testing \
 
+
+# ##### PYTHON ##### #
+
+### Python36 ###
+ENV _PYTV_ 36
+RUN yum-config-manager --enable centos-sclo-rh-testing \
+  && yum install -y rh-python${_PYTV_}
+
+### Python38 ###
+ENV _PYTV_ 38
+RUN yum-config-manager --enable centos-sclo-rh-testing \
+  && yum install -y rh-python${_PYTV_}
 
 # ##### NODEJS ##### #
 
-# RHEL7
-# RUN yum-config-manager --enable rhel-server-rhscl-7-rpms \
-#   && yum-config-manager --enable rhel-server-rhscl-beta-7-rpms \
-# CentOS7
-RUN yum-config-manager --enable centos-sclo-rh-testing \
-  && yum install -y rh-nodejs10
+### Nodejs10 ###
+ENV _NDJV_ 10
+RUN yum-config-manager --enable centos-sclo-rh \
+  && yum install -y rh-nodejs${_NDJV_}
 
-# set node10 as system default
-RUN /bin/cp /opt/rh/rh-nodejs10/enable /etc/profile.d/rh-node10.sh
+### Nodejs12 ###
+ENV _NDJV_ 12
+RUN yum-config-manager --enable centos-sclo-rh \
+  && yum install -y rh-nodejs${_NDJV_}
+
+### Nodejs14 ###
+ENV _NDJV_ 14
+RUN yum-config-manager --enable centos-sclo-rh \
+  && yum install -y rh-nodejs${_NDJV_}
 
 # ##### PHP ##### #
 # yum remove php-*
@@ -100,7 +114,7 @@ RUN yum remove -y php-*
 ENV _PHPV_ 56
 # yum install --disablerepo=* --enablerepo=epel,remi,remi-safe,remi-php56 php php-mbstring php-mysql php-gd
 # COMMON
-RUN yum-config-manager --enable remi \
+RUN yum-config-manager --enable remi-php${_PHPV_} \
     && yum install -y \
         php${_PHPV_} \
         php${_PHPV_}-php \
@@ -116,14 +130,14 @@ RUN set -xeu && \
     # sed -i '/pm = /s/dynamic/ondemand/' /opt/remi/php${_PHPV_}/root/etc/php-fpm.d/www.conf && \
     # sed -i "s/9000/90${_PHPV_}/" /opt/remi/php${_PHPV_}/root/etc/php-fpm.d/www.conf
 # PHP56 only
-RUN yum-config-manager --enable remi \
+RUN yum-config-manager --enable remi-php${_PHPV_} \
     && yum install -y \
         php${_PHPV_}-php-{pecl-jsonc,pecl-jsonc-devel}
 
 # ##### PHP73 ##### #
 ENV _PHPV_ 73
 # COMMON
-RUN yum-config-manager --enable remi \
+RUN yum-config-manager --enable remi-php${_PHPV_} \
     && yum install -y \
         php${_PHPV_} \
         php${_PHPV_}-php \
@@ -137,14 +151,14 @@ RUN set -xeu && \
     sed -i '/pm = /s/dynamic/ondemand/' /etc/opt/remi/php${_PHPV_}/php-fpm.d/www.conf && \
     sed -i "s/9000/90${_PHPV_}/" /etc/opt/remi/php${_PHPV_}/php-fpm.d/www.conf
 # PHP7x only
-RUN yum-config-manager --enable remi \
+RUN yum-config-manager --enable remi-php${_PHPV_} \
     && yum install -y \
         php${_PHPV_}-php-json
 
 # ##### PHP74 ##### #
 ENV _PHPV_ 74
 # COMMON
-RUN yum-config-manager --enable remi \
+RUN yum-config-manager --enable remi-php${_PHPV_} \
     && yum install -y \
         php${_PHPV_} \
         php${_PHPV_}-php \
@@ -158,14 +172,14 @@ RUN set -xeu && \
     sed -i '/pm = /s/dynamic/ondemand/' /etc/opt/remi/php${_PHPV_}/php-fpm.d/www.conf && \
     sed -i "s/9000/90${_PHPV_}/" /etc/opt/remi/php${_PHPV_}/php-fpm.d/www.conf
 # PHP7x only
-RUN yum-config-manager --enable remi \
+RUN yum-config-manager --enable remi-php${_PHPV_} \
     && yum install -y \
         php${_PHPV_}-php-json
 
 # ##### PHP80 ##### #
 ENV _PHPV_ 80
 # COMMON
-RUN yum-config-manager --enable remi \
+RUN yum-config-manager --enable remi-php${_PHPV_} \
     && yum install -y \
         php${_PHPV_} \
         php${_PHPV_}-php \
@@ -179,26 +193,53 @@ RUN set -xeu && \
     sed -i '/pm = /s/dynamic/ondemand/' /etc/opt/remi/php${_PHPV_}/php-fpm.d/www.conf && \
     sed -i "s/9000/90${_PHPV_}/" /etc/opt/remi/php${_PHPV_}/php-fpm.d/www.conf
 # PHP8x only
-RUN yum-config-manager --enable remi \
+RUN yum-config-manager --enable remi-php${_PHPV_} \
     && yum install -y \
         php${_PHPV_}-php-json
 
 
-# set PHP74 as system default
-ENV _PHPV_ 74
-RUN echo "if [ -f /etc/profile.d/modules.sh ];then" > /etc/profile.d/php${_PHPV_}.sh && \
-    echo "  . /etc/profile.d/modules.sh" >> /etc/profile.d/php${_PHPV_}.sh && \
-    echo "  module load php${_PHPV_}" >> /etc/profile.d/php${_PHPV_}.sh && \
-    echo "fi" >> /etc/profile.d/php${_PHPV_}.sh
-# RUN . /etc/profile.d/modules.sh && \
-#     module load php${_PHPV_}
+# ##### /usr/loca/{bin,sbin} systemctl,httpdctl,phpfpmctl,httpdLogView,phpProfSetup ##### #
+COPY httpdctl.bash /usr/local/sbin
+COPY phpfpmctl.bash /usr/local/sbin
+COPY httpdLogView.bash /usr/local/bin
+COPY systemctl.bash /usr/local/bin
+COPY phpProfSetup.bash /usr/local/sbin
+RUN chmod 0755 /usr/local/sbin/* /usr/local/bin/* && \
+    mv /usr/bin/systemctl /usr/bin/systemctl.org && \
+    ln -s /usr/local/bin/systemctl.bash /usr/bin/systemctl
+
+
+# ###### ------- System Defautl, System Common -------- ##### #
+
+# ARGS
+ARG SYS_PYTV=SYS
+ARG SYS_PHPV=74
+ARG SYS_NODEV=12
+
+# set PythonXX as system default, after remove old profile: use system default, cause yum use python2
+ENV _PYTV_ ${SYS_PYTV}
+RUN set -xe && \
+    /bin/rm -f /etc/profile.d/rh-python*.sh && \
+    if [ "${_PYTV_}" != "SYS" ];then /bin/cp /opt/rh/rh-python${_PYTV_}/enable /etc/profile.d/rh-python${_PYTV_}.sh; fi
+
+# set PHPxx as system default, after remove old profile
+ENV _PHPV_ ${SYS_PHPV}
+RUN set -xe && \
+    /bin/rm -f /etc/profile.d/php*.sh && \
+    if [ "${_PHPV_}" != "SYS" ];then bash /usr/local/sbin/phpProfSetup.bash ${_PHPV_} >| /etc/profile.d/php${_PHPV_}.sh; fi
+
+# set nodeXX as system default, after remove old profile
+ENV _NDJV_ ${SYS_NODEV}
+RUN set -xe && \
+    /bin/rm -f /etc/profile.d/rh-node*.sh && \
+    if [ "${_NDJV_}" != "SYS" ];then /bin/cp /opt/rh/rh-nodejs${_NDJV_}/enable /etc/profile.d/rh-node${_NDJV_}.sh; fi
 
 # ##### PHP common ##### #
 # https://qiita.com/erik_t/items/0b3492f38f6cd8605a4c
-RUN . /etc/profile.d/modules.sh && \
-    module load php${_PHPV_} && \
-    yum-config-manager --enable remi && \
-    yum install -y --enablerepo=remi,remi-php74 \
+# php-pecl-zip Release 1.19.2:	PHP Version: PHP 5.4.0 or newer PEAR Package: PEAR 1.7.0 or newer
+RUN . /etc/profile.d/php${_PHPV_}.sh && \
+    yum-config-manager --enable remi-php${_PHPV_} && \
+    yum install -y \
         php-pecl-zip \
         composer \
         php-fedora-autoloader
@@ -206,15 +247,6 @@ RUN . /etc/profile.d/modules.sh && \
 # update all + remove cache files
 RUN yum update -y \
     && yum clean all
-
-# ##### httpdctl ##### #
-COPY httpdctl.bash /usr/local/sbin
-COPY phpfpmctl.bash /usr/local/sbin
-COPY httpdLogView.bash /usr/local/bin
-COPY systemctl.bash /usr/local/bin
-RUN chmod 0755 /usr/local/sbin/* /usr/local/bin/* && \
-    mv /usr/bin/systemctl /usr/bin/systemctl.org && \
-    ln -s /usr/local/bin/systemctl.bash /usr/bin/systemctl
 
 # ##### LANG ##### #
 # RUN set -xeu && \
@@ -227,4 +259,4 @@ ENV LC_ALL en_US.UTF-8
 # ENTRYPOINT ["/bin/bash",  "-c", "[ -t 1 ] && bash || sleep infinity"]
 # CMD [ "/usr/local/sbin/httpdctl.bash" ]
 
-LABEL version="1.1" updated="20210403"
+LABEL version="1.3" updated="20210409" collections="Python 36,38 NodeJS 10,12,14 PHP 56,73,74,80 MySQL 57"

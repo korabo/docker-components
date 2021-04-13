@@ -1,15 +1,17 @@
-# CentOS7 on user dvladmin with Python36, Node10, PHP7.3, MySQL, etc for develop on GCP
+# CentOS7 with Python, NodeJS, PHP MySQL, etc for develop/deploy
 
 # https://docs.docker.com/engine/reference/builder/
 # https://kappariver.hatenablog.jp/entry/2018/08/12/000919
 # https://qiita.com/bezeklik/items/9766003c19f9664602fe
-# https://www.saintsouth.net/blog/update-libstdcpp-on-centos6/
 
 FROM korabo/appvm:centos7.9.2009
 
-LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" version="see-label" updated="see-label" containerid="appvm_centos7-usr"
-ARG dvlusr='dvladmin'
+LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" containerid="appvm_centos7-usr"
+# ENV container docker
+ENV _ENVDEF_P_ ${_ENVDEF_}:${_ENVDEF_P_}
 ENV _ENVDEF_ appvm_centos7-usr
+# ARGS
+ARG dvlusr='dvladmin'
 
 # set TIMEZONE
 RUN  set -xeu && \
@@ -41,6 +43,7 @@ VOLUME [ "/sys/fs/cgroup" ]
 # set locale
 RUN yum reinstall -y glibc-common && yum clean all
 RUN localedef -f UTF-8 -i ja_JP ja_JP.UTF-8
+
 ENV LANG ja_JP.UTF-8
 ENV LANGUAGE ja_JP:ja
 ENV LC_ALL ja_JP.UTF-8
@@ -56,11 +59,15 @@ RUN set -xe && \
         sudo -u ${dvlusr}-${sausr} bash -c "cat /tmp/.bash_profile >> /home/${dvlusr}-${sausr}/.bash_profile" ; \
     done
 
+# clear /tmp
 RUN set -xeu && \
     cd /tmp && \
     ls -A1 | xargs /bin/rm -rf
 
+COPY venvProfSetup.bash /usr/local/sbin
+RUN chmod 0755 /usr/local/sbin/*
+
 WORKDIR /home/${dvlusr}
 USER ${dvlusr}
 
-LABEL version="1.0" updated="20210405"
+LABEL version-usr="1.3.1" updated-usr="20210410"
