@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 RGSTR_SVR_=dflt
 # RGSTR_SVR='docker.io'
-IMG_NM_=korabo/usrvm
+IMG_NM_=korabo/dvlvm-java
 IMG_TG_=centos7.9.2009
-DKR_FLNM_=Dockerfile
+DKR_FLNM_=Dockerfile.java
 TAR_FLNM_=dflt
 PWD_=$PWD
 

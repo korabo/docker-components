@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  dev-web:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    hostname: 'dev-web-local'
+    # sysctls:
+    #   fs.inotify.max_user_watches: 524288
+    volumes:
+      - ./home_scaruadmin/WebScaru:/home/scaruadmin/WebScaru:rw
+      - ./home_scaruadmin/WebPages:/home/scaruadmin/WebPages:rw
+      - ./home_scaru-front/WebScaru:/home/scaru-front/WebScaru:rw
+      - ./home_zshare:/home/zshare:rw
+      - ./storage:/storage:rw
+#      - ~/.gitconfig:/root/.gitconfig
+    ports:
+      - 0.0.0.0:80:80
+      - 0.0.0.0:443:443
+      # - 0.0.0.0:60080:80
+      # - 0.0.0.0:60443:443
+#    command: sleep infinity
+# DSN: mysql:host=dev-db;dbname=scaru;charset=utf8
+# https://qiita.com/dyoshikawa/items/05d627b962da35f7d5b6

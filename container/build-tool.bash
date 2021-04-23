@@ -147,7 +147,7 @@ case ${_CMD_} in
     run)
       # docker run --rm -it image:tag bash -l . . .
       _RNCMD_=`findValue "${_P4_}" "bash -l"`
-      docker run --rm -it ${_IMGNM_}:${_TAGNM_} ${_RNCMD_} ${_PX_} $@
+      docker run --rm -it -v /mnt/c/home:/mnt/home  ${_IMGNM_}:${_TAGNM_} ${_RNCMD_} ${_PX_} $@
       ;;
     push)
       _RGSTRY_=$(findValue "${_P4_}" "")

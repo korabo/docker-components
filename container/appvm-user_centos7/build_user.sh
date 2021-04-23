@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 RGSTR_SVR_=dflt
 # RGSTR_SVR='docker.io'
-IMG_NM_=korabo/dvlvm_php
+IMG_NM_=korabo/appvm-lampx-user
 IMG_TG_=centos7.9.2009
-DKR_FLNM_=Dockerfile
+DKR_FLNM_=Dockerfile.user
 TAR_FLNM_=dflt
 PWD_=$PWD
 
@@ -11,7 +11,7 @@ PWD_=$PWD
 SCRIPT_REAL_PATH=$(realpath  "${BASH_SOURCE[0]}")
 SCRIPT_DIR="$(dirname "${SCRIPT_REAL_PATH}")"
 SCRIPT_NM_="$(basename "${SCRIPT_REAL_PATH}")"
-BLD_TOOL="${SCRIPT_DIR}/../../build-tool.bash"
+BLD_TOOL="${SCRIPT_DIR}/../build-tool.bash"
 
 
 # in windows bash, $ must be escaped; cannto use ^(|-h|--help)$ as regex

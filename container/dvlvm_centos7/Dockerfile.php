@@ -4,11 +4,11 @@
 # https://kappariver.hatenablog.jp/entry/2018/08/12/000919
 # https://qiita.com/bezeklik/items/9766003c19f9664602fe
 
-FROM korabo/usrvm:centos7.9.2009
+FROM korabo/appvm-lampx-user:centos7.9.2009
 
-LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" containerid="appvm_centos7-dvl"
+LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" containerid="dvlvm-php_centos7"
 ENV _ENVDEF_P_ ${_ENVDEF_}:${_ENVDEF_P_}
-ENV _ENVDEF_ appvm_centos7-dvl
+ENV _ENVDEF_ dvlvm-php_centos7
 
 # Additional packages
 USER root
@@ -56,20 +56,28 @@ RUN yum-config-manager --enable remi \
 
 # ARGS
 # dflt: dvladmin/dvladmin  1000/1000
-ARG USERNAME=dvladmin
-ARG USERPASW=dvladmin
-ARG USER_GNM=dvladmin
+# ARG dvlusr='dvladmin'
+ARG svcusrs='dvlfrnt dvlback dvljob dvlapi dvlapp'
+
+ARG USERNAME='dvladmin'
+ARG USERPASW='dvladmin'
+ARG USER_GNM='dvladmin'
 ARG USER_UID=1000
 ARG USER_GID=1000
-ARG VENV_CFG=.venv_profile
+
 ARG SYS_PYTV=SYS
 ARG SYS_PHPV=74
-ARG SYS_NODEV=12
-ARG MY_PYTV=36
+ARG SYS_NODEV=14
+ARG SYS_JAVAV=11
+
+ARG MY_PYTV=38
 ARG MY_PHPV=74
-ARG MY_NODEV=12
+ARG MY_NODEV=14
+ARG MY_JAVAV=SYS
+ARG VENV_CFG='~/.venv_profile'
 ARG MY_PYVENV=nop
 ARG MY_NODEPX=dflt
+
 
 # set PythonXX as system default, after remove old profile: use system default, cause yum use python2
 ENV _PYTV_ ${SYS_PYTV}
@@ -89,13 +97,26 @@ RUN set -xe && \
     /bin/rm -f /etc/profile.d/rh-node*.sh && \
     if [ "${_NDJV_}" != "SYS" ];then /bin/cp /opt/rh/rh-nodejs${_NDJV_}/enable /etc/profile.d/rh-node${_NDJV_}.sh; fi
 
+# set java-XX as system default, after remove old profile
+ENV _JVAV_ ${SYS_JAVAV}
+RUN set -xe && \
+    /bin/rm -f /etc/profile.d/java*.sh && \
+    if [ "${_JVAV_}" != "SYS" ];then \
+        bash /usr/local/sbin/javaProfSetup.bash ${_JVAV_} chgalt; \
+        bash /usr/local/sbin/javaProfSetup.bash ${_JVAV_} sysprof >| /etc/profile.d/java.sh; \
+    fi
+
+
+
 # config venv
 # venv profile for appvm-dvl, python36,nodejs12,php74
 # venvProfSetup.bash python-version php-version node-version python-venv node-global
 RUN set -xe && \
-    sudo -u ${USERNAME} bash -ic "/usr/local/sbin/venvProfSetup.bash ${MY_PYTV} ${MY_PHPV} ${MY_NODEV} ${MY_PYVENV} ${MY_NODEPX} >| /home/${USERNAME}/${VENV_CFG}" && \
-    for sausr in frnt back job api;do \
-        sudo -u ${USERNAME}-${sausr} bash -ic "/usr/local/sbin/venvProfSetup.bash ${MY_PYTV} ${MY_PHPV} ${MY_NODEV} ${MY_PYVENV} ${MY_NODEPX} >| /home/${USERNAME}-${sausr}/${VENV_CFG}" ; \
+    for svusr in ${USERNAME} ${svcusrs};do \
+        sudo -u ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r py   ${MY_PYTV}  ${VENV_CFG} ${MY_PYVENV}"; \
+        sudo -u ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r php  ${MY_PHPV}  ${VENV_CFG}"; \
+        sudo -u ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r node ${MY_NODEV} ${VENV_CFG} ${MY_NODEPX}"; \
+        sudo -u ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r java ${MY_JAVAV} ${VENV_CFG}"; \
     done
 
 USER $USERNAME:$USER_GNM
@@ -116,4 +137,4 @@ WORKDIR /home/$USERNAME
 # # If you’re using PHP-FPM :
 # phpfpmctl restart
 
-LABEL version-dvl="1.3.1" updated-dvl="20210410"
+LABEL version-dvl="1.3.2" updated-dvl="20210423"

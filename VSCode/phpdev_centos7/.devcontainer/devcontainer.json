@@ -1,0 +1,27 @@
+// See https://aka.ms/vscode-remote/containers for the
+// documentation about the devcontainer.json format
+{
+	"name": "PHP http server dev",
+	"dockerComposeFile": [
+        "../docker-compose.yml",
+        "./docker-compose.extend.yml"
+    ],
+	"service": "dev-web",
+	"workspaceFolder": "/home",
+	// "workspaceFolder": "/home/scaruadmin",
+	// "shutdownAction": "stopCompose",
+
+    // Comment out the next line to run as root instead. Linux users, update
+		// Dockerfile with your user's UID/GID if not 1000.
+		// on Windows: error in tar -x "Cannot utime: Operation not permitted"
+    "runArgs": ["-u", "scaruadmin"],
+    // "runArgs": ["-u", "root"],
+
+	// Uncomment the next line to run commands after the container is created.
+	"postCreateCommand": "sudo bash /home/zshare/setup-devenv.bash",
+
+	"extensions": [
+        "felixfbecker.php-debug",
+        "felixfbecker.php-intellisense"
+	]
+}
