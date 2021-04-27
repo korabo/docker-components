@@ -57,13 +57,14 @@ RUN yum-config-manager --enable remi \
 # ARGS
 # dflt: dvladmin/dvladmin  1000/1000
 # ARG dvlusr='dvladmin'
-ARG svcusrs='dvlfrnt dvlback dvljob dvlapi dvlapp'
-
-ARG USERNAME='dvladmin'
-ARG USERPASW='dvladmin'
-ARG USER_GNM='dvladmin'
-ARG USER_UID=1000
 ARG USER_GID=1000
+ARG USER_GNM='dvladmin'
+ARG USER_NAM='dvladmin'
+ARG USER_UID=1000
+# ARG USER_PSW='dvladmin'
+# ARG SUDR_GID=500
+# ARG SUDR_GNM='dvlsudoers'
+ARG ALTUSERS='dvlfrnt dvlback dvljob dvlapi dvlapp'
 
 ARG SYS_PYTV=SYS
 ARG SYS_PHPV=74
@@ -74,7 +75,8 @@ ARG MY_PYTV=38
 ARG MY_PHPV=74
 ARG MY_NODEV=14
 ARG MY_JAVAV=SYS
-ARG VENV_CFG='~/.venv_profile'
+ARG VENV_CFG=dflt
+# ARG VENV_CFG='~/.venv_profile'
 ARG MY_PYVENV=nop
 ARG MY_NODEPX=dflt
 
@@ -112,15 +114,16 @@ RUN set -xe && \
 # venv profile for appvm-dvl, python36,nodejs12,php74
 # venvProfSetup.bash python-version php-version node-version python-venv node-global
 RUN set -xe && \
-    for svusr in ${USERNAME} ${svcusrs};do \
-        sudo -u ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r py   ${MY_PYTV}  ${VENV_CFG} ${MY_PYVENV}"; \
-        sudo -u ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r php  ${MY_PHPV}  ${VENV_CFG}"; \
-        sudo -u ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r node ${MY_NODEV} ${VENV_CFG} ${MY_NODEPX}"; \
-        sudo -u ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r java ${MY_JAVAV} ${VENV_CFG}"; \
+    for svusr in ${USER_NAM} ${ALTUSERS};do \
+        sudo -iu ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r py   ${MY_PYTV}  ${VENV_CFG} ${MY_PYVENV}"; \
+        sudo -iu ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r php  ${MY_PHPV}  ${VENV_CFG}"; \
+        sudo -iu ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r node ${MY_NODEV} ${VENV_CFG} ${MY_NODEPX}"; \
+        sudo -iu ${svusr} bash -ic "/usr/local/sbin/venvProfSet.bash -r java ${MY_JAVAV} ${VENV_CFG}"; \
     done
 
-USER $USERNAME:$USER_GNM
-WORKDIR /home/$USERNAME
+# Default User
+USER $USER_NAM:$USER_GNM
+WORKDIR /home/$USER_NAM
 
 
 # # ##### LANG ##### #
@@ -137,4 +140,4 @@ WORKDIR /home/$USERNAME
 # # If you’re using PHP-FPM :
 # phpfpmctl restart
 
-LABEL version-dvl="1.3.2" updated-dvl="20210423"
+LABEL version-dvl="1.3.3" updated-dvl="20210426"
