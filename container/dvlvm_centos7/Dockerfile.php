@@ -13,20 +13,6 @@ ENV _ENVDEF_ dvlvm-php_centos7
 # Additional packages
 USER root
 
-# Image Magic + JPeg
-RUN yum makecache fast\
-    && yum install -y \
-        ImageMagick ImageMagick-devel \
-        lcms2 openjpeg2 \
-    && yum clean all
-
-
-# Ghost Script
-RUN yum makecache fast\
-    && yum install -y \
-        ghostscript ghostscript-devel ghostscript-fonts \
-    && yum clean all
-
 # ##### PHP56 ##### #
 ENV _PHPV_ 56
 RUN yum-config-manager --enable remi \

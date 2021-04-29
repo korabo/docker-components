@@ -81,6 +81,8 @@ function fillFrmVrdoArgs {
       load|save)
         _P4_=${2:-${TAR_FLNM_}}
         _PX_=${3}
+        [[ -n ${SRC_IMG_NM_} ]] && _BLD_ARGS_="--build-arg DK_IMG=${SRC_IMG_NM_}"
+        [[ -n ${SRC_IMG_TG_} ]] && _BLD_ARGS_="${_BLD_ARGS_} --build-arg DK_TAG=${SRC_IMG_TG_}"
         ;;
       run)
         _P4_=${2:-dflt}
@@ -120,6 +122,7 @@ _P2_=''
 _P3_=''
 _P4_=''
 _PX_=''
+_BLD_ARGS_=''
 _HELP_=''
 _RET_=''
 
@@ -142,7 +145,7 @@ case ${_CMD_} in
       ;;
     bld)
       _DKFILE_=$(findValue "${_P4_}" "Dockerfile")
-      docker build -f ${_DKFILE_} -t ${_IMGNM_}:${_TAGNM_} $@ ${_PX_}
+      docker build -f ${_DKFILE_} -t ${_IMGNM_}:${_TAGNM_}  ${_BLD_ARGS_} $@ ${_PX_}
       ;;
     run)
       # docker run --rm -it image:tag bash -l . . .

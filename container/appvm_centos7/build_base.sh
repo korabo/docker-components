@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 RGSTR_SVR_=dflt
 # RGSTR_SVR='docker.io'
+SRC_IMG_NM_=centos
+SRC_IMG_TG_='7.9.2009'
 IMG_NM_=korabo/appvm-base
 IMG_TG_=centos7.9.2009
 DKR_FLNM_=Dockerfile.base

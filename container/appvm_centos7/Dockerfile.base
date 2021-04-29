@@ -5,7 +5,9 @@
 # https://www.saintsouth.net/blog/update-libstdcpp-on-centos6/
 
 # centos7 image: https://hub.docker.com/_/centos
-FROM centos:7.9.2009
+ARG DK_IMG=centos
+ARG DK_TAG="7.9.2009"
+FROM ${DK_IMG}:${DK_TAG}
 
 LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" version="see-label" updated="see-label" containerid="appvm-base_centos7"
 
@@ -31,9 +33,6 @@ RUN yum install -y \
 RUN yum install -y deltarpm
 
 # Install packages needed
-RUN yum -y groupinstall "Development Tools" \
-        --setopt=group_package_types=mandatory,default
-
 RUN yum install -y \
         sudo ntp wget vim-common vim-enhanced vim-minimal \
         unzip zip vixie-cron iftop bc \
@@ -43,23 +42,27 @@ RUN yum install -y \
 RUN yum install -y \
         libicu libtool-ltdl mcrypt unixODBC aspell net-snmp net-snmp-utils libtidy libxslt
 
+# Nfs, etc
+RUN yum install -y \
+        nfs-utils nfs-utils-lib
+
 
 # httpd 2.4.6 on CentOS7 from base
 RUN yum install -y \
       httpd httpd-devel httpd-tools mod_ssl
 
-# MySQL5.7
-# add repo for mysql-community
-RUN yum install -y https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm \
-    && yum-config-manager --disable mysql80-community \
-    && yum-config-manager  --enable mysql57-community
+# ##### MySQL ##### #
 
+### MySQL 5.7 ###
+# add repo for mysql-community
+ENV _MYSQL_ 57
+ENV _NA_MYSQL_ 80
+RUN yum install -y https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm \
+    && yum-config-manager --disable mysql${_NA_MYSQL_}-community \
+    && yum-config-manager --enable mysql${_MYSQL_}-community
+# install develop package
 RUN yum install -y \
         mysql-community-server mysql-community-devel
-
-# Nfs, etc
-RUN yum install -y \
-        nfs-utils nfs-utils-lib
 
 
 # SCL
@@ -69,6 +72,14 @@ RUN yum install -y \
 #   && yum-config-manager --enable rhel-server-rhscl-beta-7-rpms \
 # CentOS7
 # RUN yum-config-manager --enable centos-sclo-rh-testing \
+
+# ##### GIT ##### #
+
+# ##### GIT 218 ##### # rh-git218, sclo-git212, sclo-git25
+ENV _GITV_ rh-git218
+RUN yum-config-manager --enable centos-sclo-rh-testing \
+  && yum install -y ${_GITV_}
+
 
 # ##### PYTHON ##### #
 
@@ -90,7 +101,7 @@ RUN yum remove -y php-*
 
 # https://qiita.com/bezeklik/items/860ba080bf4c664cd8e9
 
-# ##### PHP80 ##### #
+### PHP80 ###
 ENV _PHPV_ 80
 # COMMON
 RUN yum-config-manager --enable remi-php${_PHPV_} \
@@ -112,18 +123,12 @@ RUN yum-config-manager --enable remi-php${_PHPV_} \
         php${_PHPV_}-php-json
 
 # ##### JAVA ##### #
+
+### JDK11 ###
 ENV _JVAV_ 11
-# JDK 11
 RUN yum install -y \
         java-${_JVAV_}-openjdk-devel
 
-
-# ##### GIT ##### #
-
-# ##### GIT 218 ##### # rh-git218, sclo-git212, sclo-git25
-ENV _GITV_ rh-git218
-RUN yum-config-manager --enable centos-sclo-rh-testing \
-  && yum install -y ${_GITV_}
 
 
 # ##### /usr/loca/{bin,sbin} systemctl,httpdctl,phpfpmctl,httpdLogView,phpProfSetup ##### #
@@ -141,11 +146,17 @@ RUN chmod 0755 /usr/local/sbin/* /usr/local/bin/* && \
 # ###### ------- System Defautl, System Common -------- ##### #
 
 # ARGS
+ARG SYS_GITV=rh-git218
 ARG SYS_PYTV=38
 ARG SYS_PHPV=80
 ARG SYS_NODEV=14
 ARG SYS_JAVAV=SYS
-ARG SYS_GITV=rh-git218
+
+# set GitXX as system default, after remove old profile
+ENV _GITV_ ${SYS_GITV}
+RUN set -xe && \
+    /bin/rm -f /etc/profile.d/*-git*.sh && \
+    if [ "${_GITV_}" != "SYS" ];then /bin/cp /opt/rh/${_GITV_}/enable /etc/profile.d/${_GITV_}.sh; fi
 
 # set PythonXX as system default, after remove old profile
 ENV _PYTV_ ${SYS_PYTV}
@@ -174,13 +185,20 @@ RUN set -xe && \
         bash /usr/local/sbin/javaProfSetup.bash ${_JVAV_} sysprof >| /etc/profile.d/java.sh; \
     fi
 
-# set GitXX as system default, after remove old profile
-ENV _GITV_ ${SYS_GITV}
-RUN set -xe && \
-    /bin/rm -f /etc/profile.d/*-git*.sh && \
-    if [ "${_GITV_}" != "SYS" ];then /bin/cp /opt/rh/${_GITV_}/enable /etc/profile.d/${_GITV_}.sh; fi
+# ##### Other Libs mainly for PHP ##### #
 
-# ##### PHP common ##### #
+### Image Magic + JPeg ###
+RUN yum install -y \
+        ImageMagick ImageMagick-devel \
+        lcms2 openjpeg2
+
+
+### Ghost Script ###
+RUN yum install -y \
+        ghostscript ghostscript-devel ghostscript-fonts
+
+
+### PHP common ###
 # https://qiita.com/erik_t/items/0b3492f38f6cd8605a4c
 # php-pecl-zip Release 1.19.2:	PHP Version: PHP 5.4.0 or newer PEAR Package: PEAR 1.7.0 or newer
 RUN . /etc/profile.d/php${_PHPV_}.sh && \
@@ -205,4 +223,4 @@ ENV LC_ALL en_US.UTF-8
 # ENTRYPOINT ["/bin/bash",  "-c", "[ -t 1 ] && bash || sleep infinity"]
 # CMD [ "/usr/local/sbin/httpdctl.bash" ]
 
-LABEL version="1.1" updated="20210421" collections="Python 38, NodeJS 14, PHP 80, MySQL 57, Apache 2.4, Git 2.12"
+LABEL version="1.5.0" updated="20210428" collections="Apache 2.4, MySQL 57, Git 2.18, Python 38, NodeJS 14, PHP 80"

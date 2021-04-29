@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 RGSTR_SVR_=dflt
 # RGSTR_SVR='docker.io'
-IMG_NM_=korabo/appvm-lampx-user
+SRC_IMG_NM_=korabo/dvlvm-lampx
+SRC_IMG_TG_=centos7.9.2009
+IMG_NM_=korabo/dvlvm-lampx-user
 IMG_TG_=centos7.9.2009
 DKR_FLNM_=Dockerfile.user
 TAR_FLNM_=dflt

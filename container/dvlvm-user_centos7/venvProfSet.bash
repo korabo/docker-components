@@ -6,7 +6,7 @@ HLP_USAGE="HELP: -h,--help,help"
 # in windows bash, $ must be escaped; cannto use ^(|-h|--help)$ as regex
 HELP_ON='^(|-h|--help|help)$'
 if [[ $1 =~ $HELP_ON ]];then
-  echo "Initialize and print venv setup script for given args"
+  echo "Initialize and print venv setup script for given args ${_VENV_PROF_SET_VER_}"
   echo "usage:$0 (<-p|print>) p1:<replace|delete> p2:<veprof> (p3:<dflt>|venvProfFile p4:<dflt>|shProfFile)"
   echo "e.g.) $0 -p replace veprof '~/.v_prof' ---> print initialize line with gievn venv_prof file"
   echo "      $0 -p delete  veprof dflt  dflt  ---> print deleted line with default profs ,~/.venv_profile and  ~/.bash_profile"
@@ -302,7 +302,7 @@ _R_=0
 case ${_CMD_} in
     ERR1)
         echo "No such arg p1:${_P1_}" >&2
-        echo ${HLP_USAGE}
+        echo ${HLP_USAGE} >&2
         _R_=1
         ;;
     veprof)
@@ -342,7 +342,7 @@ case ${_CMD_} in
         ;;
     *)
         echo "No such arg p2:${_P2_}" >&2
-        echo ${HLP_USAGE}
+        echo ${HLP_USAGE} >&2
         _R_=2
         ;;
 esac
