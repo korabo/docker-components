@@ -6,10 +6,12 @@ HLP_USAGE="HELP: -h,--help,help"
 # in windows bash, $ must be escaped; cannto use ^(|-h|--help)$ as regex
 HELP_ON='^(|-h|--help|help)$'
 if [[ $1 =~ $HELP_ON ]];then
-  echo "Initialize and print venv setup script for given args ${_VENV_PROF_SET_VER_}"
+  echo "### $0 <<<${_VENV_PROF_SET_VER_}>>> ###"
+  echo "## nitialize and/or print venv profile script for given args"
   echo "usage:$0 (<-p|print>) p1:<replace|delete> p2:<veprof> (p3:<dflt>|venvProfFile p4:<dflt>|shProfFile)"
   echo "e.g.) $0 -p replace veprof '~/.v_prof' ---> print initialize line with gievn venv_prof file"
   echo "      $0 -p delete  veprof dflt  dflt  ---> print deleted line with default profs ,~/.venv_profile and  ~/.bash_profile"
+  echo "## Initialize and/or print language setup script"
   echo "usage:$0 (<-p|print>) p1:<replace|delete> p2:<py|php|node|java> p3 p4 (p5))"
   echo "    p3: <dflt|sys>|version"
   echo "    p4: <dflt|.venv_prof file path"

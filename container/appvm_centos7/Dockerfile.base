@@ -5,8 +5,8 @@
 # https://www.saintsouth.net/blog/update-libstdcpp-on-centos6/
 
 # centos7 image: https://hub.docker.com/_/centos
-ARG DK_IMG=centos
-ARG DK_TAG="7.9.2009"
+ARG DK_IMG=centos7
+ARG DK_TAG=latest
 FROM ${DK_IMG}:${DK_TAG}
 
 LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" version="see-label" updated="see-label" containerid="appvm-base_centos7"

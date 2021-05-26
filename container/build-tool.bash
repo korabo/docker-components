@@ -29,9 +29,24 @@ function showHelp {
     return
 }
 
+function DBGECHO_ {
+  echo "$@"
+  return
+}
+
+function NOP_ {
+  # NOP
+  return
+}
+
+# DBGECHO=DBGECHO_
+# DBGEXEC=DBGECHO_
+DBGECHO=NOP_
+DBGEXEC=''
+
 function showHelpVrdo {
     local SCRIPT_NM_=$1
-    echo "Docker build utility for buld,run,tag,push about ${RGSTR_SVR}${IMG_NM}:${IMG_TG}"
+    echo "Docker build utility for buld,run,tag,push about ${RGSTR_SVR_}${IMG_NM_}:${IMG_TG_}"
     echo "usage: ${SCRIPT_NM_} <bld|run|push|load|save|-h|--help|help> (p2 p3)"
     echo "  e.g.) ${SCRIPT_NM_} bld"
     echo "      ) ${SCRIPT_NM_} bld DockerfilePath"
@@ -58,6 +73,12 @@ function fillFrmArgs {
   return
 }
 
+function appendArgs {
+  local _ARG_ITEM_=$1
+  local _ATG_VALU_=$2
+  [[ -n ${_ATG_VALU_} ]] && _BLD_ARGS_="${_BLD_ARGS_} --build-arg ${_ARG_ITEM_}=${_ATG_VALU_}"
+}
+
 function fillFrmVrdoArgs {
   # fillFrmVrdoArgs ${_CMD2_} ${_ARG3_} ${_ARG4_}
   # param from variable
@@ -77,12 +98,24 @@ function fillFrmVrdoArgs {
       bld)
         _P4_=${2:-${DKR_FLNM_}}
         _PX_="${3:-${PWD_}}"
+        appendArgs DK_IMG "${SRC_IMG_NM_}"
+        appendArgs DK_TAG "${SRC_IMG_TG_}"
+        appendArgs SYS_PYTV "${SYS_PYTV_}"
+        appendArgs SYS_PHPV "${SYS_PHPV_}"
+        appendArgs SYS_NODEV "${SYS_NODEV_}"
+        appendArgs SYS_JAVAV "${SYS_JAVAV_}"
+        appendArgs SUDR_GID "${SUDR_GID_}"
+        appendArgs SUDR_GNM "${SUDR_GNM_}"
+        appendArgs USER_GID "${USER_GID_}"
+        appendArgs USER_GNM "${USER_GNM_}"
+        appendArgs USER_UID "${USER_UID_}"
+        appendArgs USER_NAM "${USER_NAM_}"
+        appendArgs USER_PSW "${USER_PSW_}"
+        appendArgs ALTUSERS "${ALTUSERS_}"
         ;;
       load|save)
         _P4_=${2:-${TAR_FLNM_}}
         _PX_=${3}
-        [[ -n ${SRC_IMG_NM_} ]] && _BLD_ARGS_="--build-arg DK_IMG=${SRC_IMG_NM_}"
-        [[ -n ${SRC_IMG_TG_} ]] && _BLD_ARGS_="${_BLD_ARGS_} --build-arg DK_TAG=${SRC_IMG_TG_}"
         ;;
       run)
         _P4_=${2:-dflt}
@@ -133,44 +166,50 @@ else
   fillFrmArgs ${_CMD1_} ${_CMD2_} ${_ARG3_} ${_ARG4_}
 fi
 
+$DBGECHO L:145 1:${_CMD1_} 2:${_CMD2_} 3:${_ARG3_} 4:${_ARG4_}
+
 # fill variable from args
 _IMGNM_=$(findValue "${_P2_}" "")
 _TAGNM_=$(findValue "${_P3_}" "")
 
 echo "executing ${_CMD_} on ${_IMGNM_}:${_TAGNM_}"
-# cat <<_DBG_
+# export DOCKER_BUILDKIT=0
+# export COMPOSE_DOCKER_CLI_BUILD=0
+_MSG_=DONE
+$DBGECHO L:155 2:${_P2_} 3:${_P3_} 4:${_P4_} X:${_PX_} _IMGNM_:${_IMGNM_} _TAGNM_:${_TAGNM_}
 case ${_CMD_} in
     hlp)
       ${_HELP_} ${_SNM_}
       ;;
     bld)
       _DKFILE_=$(findValue "${_P4_}" "Dockerfile")
-      docker build -f ${_DKFILE_} -t ${_IMGNM_}:${_TAGNM_}  ${_BLD_ARGS_} $@ ${_PX_}
+      $DBGEXEC docker build -f ${_DKFILE_} -t ${_IMGNM_}:${_TAGNM_}  ${_BLD_ARGS_} $@ ${_PX_}
       ;;
     run)
       # docker run --rm -it image:tag bash -l . . .
       _RNCMD_=`findValue "${_P4_}" "bash -l"`
-      docker run --rm -it -v /mnt/c/home:/mnt/home  ${_IMGNM_}:${_TAGNM_} ${_RNCMD_} ${_PX_} $@
+      $DBGEXEC docker run --rm -it -v /mnt/c/home:/mnt/home  ${_IMGNM_}:${_TAGNM_} ${_RNCMD_} ${_PX_} $@
       ;;
     push)
       _RGSTRY_=$(findValue "${_P4_}" "")
       if [[ -n ${_RGSTRY_} ]];then
-        docker tag ${_IMGNM_}:${_TAGNM_} ${_RGSTRY_}/${_IMGNM_}:${_TAGNM_}
-        docker push ${_RGSTRY_}/${_IMGNM_}:${_TAGNM_}
+        $DBGEXEC docker tag ${_IMGNM_}:${_TAGNM_} ${_RGSTRY_}/${_IMGNM_}:${_TAGNM_}
+        $DBGEXEC docker push ${_RGSTRY_}/${_IMGNM_}:${_TAGNM_}
       else
-        docker push ${_IMGNM_}:${_TAGNM_}
+        $DBGEXEC docker push ${_IMGNM_}:${_TAGNM_}
       fi
       ;;
     load)
       _LTRNM_=$(findValue "${_P4_}" "${_IMGNM_}_${_TAGNM_}.tar")
-      docker load -i ${_LTRNM_//\//+}
+      $DBGEXEC docker load -i ${_LTRNM_//\//+}
       ;;
     save)
       _STRNM_=$(findValue "${_P4_}" "${_IMGNM_}_${_TAGNM_}.tar")
-      docker save -o ${_STRNM_//\//+} ${_IMGNM_}:${_TAGNM_}
+      $DBGEXEC docker save -o ${_STRNM_//\//+} ${_IMGNM_}:${_TAGNM_}
       ;;
     *)
-      exit
+      _MSG_="ILLEGAL/WRONG CMD: ${_CMD_}"
+      ;;
 esac
-# _DBG_
-echo "DONE"
+
+echo "${_MSG_}"

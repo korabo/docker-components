@@ -5,8 +5,8 @@
 # https://www.saintsouth.net/blog/update-libstdcpp-on-centos6/
 
 # centos7 image: https://hub.docker.com/_/centos
-ARG DK_IMG=korabo/appvm-base
-ARG DK_TAG=centos7.9.2009
+ARG DK_IMG=appvm-base
+ARG DK_TAG=centos7.xxxxx
 FROM ${DK_IMG}:${DK_TAG}
 
 LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" version="see-below" updated="see-below" containerid="dvlvm-lampx_centos7"
