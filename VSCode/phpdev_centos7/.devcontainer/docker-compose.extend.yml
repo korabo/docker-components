@@ -3,7 +3,7 @@ services:
   dev-web:
     hostname: 'dev-web-local'
     environment:
-      - HOME=/home/scaruadmin
+      - HOME=/home/dvladmin
 
 # DSN: mysql:host=dev-db;dbname=scaru;charset=utf8
 # https://qiita.com/dyoshikawa/items/05d627b962da35f7d5b6

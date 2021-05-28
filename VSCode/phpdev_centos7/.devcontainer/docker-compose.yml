@@ -5,15 +5,15 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+      args:
+        DK_IMG: korabo/dvlvm-lampx-user
+        DK_TAG: centos7.9.2009
     hostname: 'dev-web-local'
     # sysctls:
     #   fs.inotify.max_user_watches: 524288
     volumes:
-      - ./home_scaruadmin/WebScaru:/home/scaruadmin/WebScaru:rw
-      - ./home_scaruadmin/WebPages:/home/scaruadmin/WebPages:rw
-      - ./home_scaru-front/WebScaru:/home/scaru-front/WebScaru:rw
-      - ./home_zshare:/home/zshare:rw
-      - ./storage:/storage:rw
+      - ../home_dvladmin/source:/home/dvladmin/source:rw
+      - ../home_zshare:/home/zshare:rw
 #      - ~/.gitconfig:/root/.gitconfig
     ports:
       - 0.0.0.0:80:80

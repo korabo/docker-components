@@ -1,27 +1,65 @@
-// See https://aka.ms/vscode-remote/containers for the
-// documentation about the devcontainer.json format
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.159.0/containers/php
 {
-	"name": "PHP http server dev",
+	"name": "PHP",
 	"dockerComposeFile": [
-        "../docker-compose.yml",
+        "./docker-compose.yml",
         "./docker-compose.extend.yml"
     ],
 	"service": "dev-web",
-	"workspaceFolder": "/home",
-	// "workspaceFolder": "/home/scaruadmin",
-	// "shutdownAction": "stopCompose",
+	"shutdownAction": "stopCompose",
 
     // Comment out the next line to run as root instead. Linux users, update
 		// Dockerfile with your user's UID/GID if not 1000.
 		// on Windows: error in tar -x "Cannot utime: Operation not permitted"
-    "runArgs": ["-u", "scaruadmin"],
-    // "runArgs": ["-u", "root"],
+	// "build": {
+	// 	"dockerfile": "Dockerfile",
+	// 	"args": { 
+	// 		"DK_IMG": "korabo/dvlvm-lampx-user",
+	// 		"DK_TAG": "centos7.9.2009",
+	// 		"PY_VERSION": "sys",
+	// 		"PY_VENV": "nop",
+	// 		"PHP_VERSION": "74",
+	// 		"NODE_VERSION": "14",
+	// 		"NPM_PRFX": "dflt",
+	// 		"NODE_GLOBALS": "pnpm",
+	// 		"JAVA_VERSION": "sys",
+	// 	}
+	// },
+	"workspaceFolder": "/home",
+	// Set *default* container specific settings.json values on container create.
+	"settings": { 
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"terminal.integrated.shellArgs.linux": ["-l"],
+		"php.validate.executablePath": "/usr/local/bin/php"
+	},
 
-	// Uncomment the next line to run commands after the container is created.
-	"postCreateCommand": "sudo bash /home/zshare/setup-devenv.bash",
-
+	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-        "felixfbecker.php-debug",
-        "felixfbecker.php-intellisense"
-	]
+		"felixfbecker.php-debug",
+		"bmewburn.vscode-intelephense-client",
+		"mrmlnc.vscode-apache"
+	],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [8080],
+
+	// Use 'portsAttributes' to set default properties for specific forwarded ports. More info: https://code.visualstudio.com/docs/remote/devcontainerjson-reference.
+	"portsAttributes": {
+		"8000": {
+			"label": "Hello Remote World",
+			"onAutoForward": "notify"
+		}
+	},
+
+	// Use 'otherPortsAttributes' to configure any ports that aren't configured using 'portsAttributes'.
+	// "otherPortsAttributes": {
+	// 		"onAutoForward": "silent"
+	// },
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html"
+
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "dvladmin"
 }
