@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-RGSTR_SVR_=dflt
-# RGSTR_SVR_='docker.io'
-SRC_IMG_NM_=centos
-SRC_IMG_TG_='7.9.2009'
-IMG_NM_=korabo/appvm-base
-IMG_TG_=centos7.9.2009
-DKR_FLNM_=Dockerfile.base
-TAR_FLNM_=dflt
-PWD_=$PWD
-
 # source variables
 SCRIPT_REAL_PATH=$(realpath  "${BASH_SOURCE[0]}")
 SCRIPT_DIR="$(dirname "${SCRIPT_REAL_PATH}")"
 SCRIPT_NM_="$(basename "${SCRIPT_REAL_PATH}")"
 BLD_TOOL="${SCRIPT_DIR}/../build-tool.bash"
+[[ -f ${SCRIPT_DIR}/../build-def.bash ]] && . ${SCRIPT_DIR}/../build-def.bash
 
+RGSTR_SVR_=${APPVM_BASE_RGSTR_SVR_:-dflt}
+SRC_IMG_NM_=${APPVM_BASE_SRC_IMG_NM_:-centos7}
+SRC_IMG_TG_=${APPVM_BASE_SRC_IMG_TG_:-latest}
+IMG_NM_=${APPVM_BASE_IMG_NM_:-appvm-base}
+IMG_TG_=${APPVM_BASE_IMG_TG_:-latest}
+
+DKR_FLNM_=Dockerfile.base
+TAR_FLNM_=dflt
+PWD_=$PWD
 
 # in windows bash, $ must be escaped; cannto use ^(|-h|--help)$ as regex
 HELP_ON='^(|-h|--help|help)$'
 if [[ $1 =~ $HELP_ON ]];then
     . ${BLD_TOOL} vrdo --help ${SCRIPT_NM_}
-    exit 0
+else
+. ${BLD_TOOL} vrdo $@
 fi
 
-. ${BLD_TOOL} vrdo $@
 
 # # in windows bash, $ must be escaped; cannto use ^(|-h|--help)$ as regex
 # HELP_ON='^(|-h|--help|help)$'

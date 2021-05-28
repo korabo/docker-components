@@ -9,7 +9,7 @@ ARG DK_IMG=centos7
 ARG DK_TAG=latest
 FROM ${DK_IMG}:${DK_TAG}
 
-LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" version="see-label" updated="see-label" containerid="appvm-base_centos7"
+LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" containerid="appvm-base_centos7"
 
 ENV container docker
 ENV _ENVDEF_ appvm-base_centos7
@@ -112,6 +112,7 @@ RUN yum-config-manager --enable remi-php${_PHPV_} \
         php${_PHPV_}-php-{gd,xml,mbstring,mysqlnd} \
         php${_PHPV_}-php-{pdo,pear,process,tidy} \
         php${_PHPV_}-php-{opcache,pecl-apcu,pecl-memcached,pecl-zip} \
+        php${_PHPV_}-php-pecl-imagick \
         php${_PHPV_}-php-fpm
 # FPM: PHP8.x: change process manager + listen port for php-fpm
 RUN set -xeu && \
@@ -212,6 +213,7 @@ RUN . /etc/profile.d/php${_PHPV_}.sh && \
 RUN yum update -y \
     && yum clean all
 
+# chmod 0644 /etc/profile.d/*
 # ##### LANG ##### #
 # RUN set -xeu && \
 #   localectl set-locale LANG=en_US.UTF-8
@@ -223,4 +225,4 @@ ENV LC_ALL en_US.UTF-8
 # ENTRYPOINT ["/bin/bash",  "-c", "[ -t 1 ] && bash || sleep infinity"]
 # CMD [ "/usr/local/sbin/httpdctl.bash" ]
 
-LABEL version="1.5.0" updated="20210428" collections="Apache 2.4, MySQL 57, Git 2.18, Python 38, NodeJS 14, PHP 80"
+LABEL version="1.6.0" updated="20210528" collections="Apache 2.4, MySQL 57, Git 2.18, Python 38, NodeJS 14, PHP 80"

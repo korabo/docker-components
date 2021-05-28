@@ -1,29 +1,34 @@
 #!/usr/bin/env bash
-RGSTR_SVR_=dflt
-# RGSTR_SVR='docker.io'
-SRC_IMG_NM_=korabo/appvm-base
-SRC_IMG_TG_=centos7.9.2009
-IMG_NM_=korabo/dvlvm-lampx
-IMG_TG_=centos7.9.2009
-DKR_FLNM_=Dockerfile.lampx
-TAR_FLNM_=dflt
-PWD_=$PWD
-
 # source variables
 SCRIPT_REAL_PATH=$(realpath  "${BASH_SOURCE[0]}")
 SCRIPT_DIR="$(dirname "${SCRIPT_REAL_PATH}")"
 SCRIPT_NM_="$(basename "${SCRIPT_REAL_PATH}")"
 BLD_TOOL="${SCRIPT_DIR}/../build-tool.bash"
+[[ -f ${SCRIPT_DIR}/../build-def.bash ]] && . ${SCRIPT_DIR}/../build-def.bash
+# IMAGE DEF
+RGSTR_SVR_=${DVLVM_LAMPX_RGSTR_SVR_:-dflt}
+SRC_IMG_NM_=${DVLVM_LAMPX_SRC_IMG_NM_:-centos7}
+SRC_IMG_TG_=${DVLVM_LAMPX_SRC_IMG_TG_:-latest}
+IMG_NM_=${DVLVM_LAMPX_IMG_NM_:-dvlvm-lampx}
+IMG_TG_=${DVLVM_LAMPX_IMG_TG_:-latest}
+# SYS VERSION
+SYS_PYTV_=${DVLVM_LAMPX_SYS_PYTV_:-36}
+SYS_PHPV_=${DVLVM_LAMPX_SYS_PHPV_:-56}
+SYS_NODEV_=${DVLVM_LAMPX_SYS_NODEV_:-12}
+SYS_JAVAV_=${DVLVM_LAMPX_SYS_JAVAV_:-11}
+
+DKR_FLNM_=Dockerfile.lampx
+TAR_FLNM_=dflt
+PWD_=$PWD
 
 
 # in windows bash, $ must be escaped; cannto use ^(|-h|--help)$ as regex
 HELP_ON='^(|-h|--help|help)$'
 if [[ $1 =~ $HELP_ON ]];then
     . ${BLD_TOOL} vrdo --help ${SCRIPT_NM_}
-    exit 0
+else
+    . ${BLD_TOOL} vrdo $@
 fi
-
-. ${BLD_TOOL} vrdo $@
 
 # # in windows bash, $ must be escaped; cannto use ^(|-h|--help)$ as regex
 # HELP_ON='^(|-h|--help|help)$'

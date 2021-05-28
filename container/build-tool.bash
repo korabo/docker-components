@@ -39,10 +39,13 @@ function NOP_ {
   return
 }
 
-# DBGECHO=DBGECHO_
-# DBGEXEC=DBGECHO_
-DBGECHO=NOP_
-DBGEXEC=''
+if [[ -n "${___DBG___}" ]];then
+  DBGECHO=DBGECHO_
+  DBGEXEC=DBGECHO_
+else
+  DBGECHO=NOP_
+  DBGEXEC=''
+fi
 
 function showHelpVrdo {
     local SCRIPT_NM_=$1
