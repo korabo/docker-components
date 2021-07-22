@@ -6,9 +6,13 @@ SCRIPT_NM_="$(basename "${SCRIPT_REAL_PATH}")"
 BLD_TOOL="${SCRIPT_DIR}/../build-tool.bash"
 [[ -f ${SCRIPT_DIR}/../build-def.bash ]] && . ${SCRIPT_DIR}/../build-def.bash
 
-RGSTR_SVR_=${APPVM_BASE_RGSTR_SVR_:-dflt}
+# Registry AND IMAGE DEF
+# SRC
+SRC_RGSTR_=${CMN_RGSTR_SVR_:-dflt}
 SRC_IMG_NM_=${APPVM_BASE_SRC_IMG_NM_:-centos7}
 SRC_IMG_TG_=${APPVM_BASE_SRC_IMG_TG_:-latest}
+#TGT
+RGSTR_SVR_=${DKH_RGSTR_SVR_:-dflt}
 IMG_NM_=${APPVM_BASE_IMG_NM_:-appvm-base}
 IMG_TG_=${APPVM_BASE_IMG_TG_:-latest}
 
@@ -21,7 +25,7 @@ HELP_ON='^(|-h|--help|help)$'
 if [[ $1 =~ $HELP_ON ]];then
     . ${BLD_TOOL} vrdo --help ${SCRIPT_NM_}
 else
-. ${BLD_TOOL} vrdo $@
+    . ${BLD_TOOL} vrdo $@
 fi
 
 

@@ -18,6 +18,9 @@ ENV _ENVDEF_ dvlvm-lampx_centos7
 RUN yum -y groupinstall "Development Tools" \
         --setopt=group_package_types=mandatory,default
 
+# httpd 2.4.6 on CentOS7 from base
+RUN yum install -y \
+      httpd httpd-devel httpd-tools mod_ssl
 
 # SCL
 # https://www.softwarecollections.org/en/scls/rhscl/rh-python36/
@@ -188,10 +191,17 @@ RUN set -xe && \
 #         composer \
 #         php-fedora-autoloader
 
+# ##### /usr/loca/{bin,sbin} systemctl,phpfpmctl,httpdctl,httpdLogView ##### #
+COPY ./usr_local_sbin/* /usr/local/sbin/
+COPY ./usr_local_bin/* /usr/local/bin/
+RUN chmod -R 0755 /usr/local/sbin /usr/local/bin && \
+    mv /usr/bin/systemctl /usr/bin/systemctl.org && \
+    ln -s /usr/local/sbin/systemctl.bash /usr/bin/systemctl
+
 # update all + remove cache files
 RUN yum reinstall -y \
     glibc-common
 RUN yum update -y
 RUN yum clean all
 
-LABEL version="1.6.0" updated="20210528" collections-lampx="Python 36,38 NodeJS 10,12,14 PHP 56,73,74,80"
+LABEL version="1.8.0" updated="20210720" collections-lampx="Apache 2.4, Python 36,38 NodeJS 10,12,14 PHP 56,73,74,80"

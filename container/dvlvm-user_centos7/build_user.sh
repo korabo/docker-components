@@ -5,12 +5,17 @@ SCRIPT_DIR="$(dirname "${SCRIPT_REAL_PATH}")"
 SCRIPT_NM_="$(basename "${SCRIPT_REAL_PATH}")"
 BLD_TOOL="${SCRIPT_DIR}/../build-tool.bash"
 [[ -f ${SCRIPT_DIR}/../build-def.bash ]] && . ${SCRIPT_DIR}/../build-def.bash
-# IMAGE DEF
-RGSTR_SVR_=${DVLVM_USER_RGSTR_SVR_:-dflt}
+
+# Registry AND IMAGE DEF
+# SRC
+SRC_RGSTR_=${DKH_RGSTR_SVR_:-dflt}
 SRC_IMG_NM_=${DVLVM_USER_SRC_IMG_NM_:-centos7}
 SRC_IMG_TG_=${DVLVM_USER_SRC_IMG_TG_:-latest}
+# TGT
+RGSTR_SVR_=${DKH_RGSTR_SVR_:-dflt}
 IMG_NM_=${DVLVM_USER_IMG_NM_:-dvlvm-lampx}
 IMG_TG_=${DVLVM_USER_IMG_TG_:-latest}
+
 # USER DEF
 SUDR_GID_=${DVLVM_USER_SUDR_GID_:-500}
 SUDR_GNM_=${DVLVM_USER_SUDR_GNM_:-dvlsudoers}

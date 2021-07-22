@@ -14,7 +14,7 @@ function findJavaPathOf {
     # e.g.) findJavaPathOf javac 11
     local _J_=$1
     local _V_=$2
-    echo -e '\n' |alternatives --config ${_J_} |grep java-${_V_} >| /tmp/jalts
+    echo -e '\n' |alternatives --config ${_J_} 2> /dev/null |grep java-${_V_} >| /tmp/jalts
     jpath=`sed -e 's/.*(\([^()]*\)).*/\1/' /tmp/jalts`
     # clear /tmp
     /bin/rm -rf /tmp/jalts

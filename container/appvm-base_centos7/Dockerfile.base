@@ -24,10 +24,12 @@ RUN yum install -y \
         https://rpms.remirepo.net/enterprise/remi-release-7.rpm \
         centos-release-scl-rh \
         centos-release-scl \
+        https://repo.ius.io/ius-release-el7.rpm \
         yum-utils \
         scl-utils \
     && yum-config-manager --enable centos-sclo-rh-testing \
-    && yum-config-manager --enable remi
+    && yum-config-manager --enable remi \
+    && yum-config-manager --disable ius
 
 # install deltarpm
 RUN yum install -y deltarpm
@@ -46,10 +48,6 @@ RUN yum install -y \
 RUN yum install -y \
         nfs-utils nfs-utils-lib
 
-
-# httpd 2.4.6 on CentOS7 from base
-RUN yum install -y \
-      httpd httpd-devel httpd-tools mod_ssl
 
 # ##### MySQL ##### #
 
@@ -72,14 +70,6 @@ RUN yum install -y \
 #   && yum-config-manager --enable rhel-server-rhscl-beta-7-rpms \
 # CentOS7
 # RUN yum-config-manager --enable centos-sclo-rh-testing \
-
-# ##### GIT ##### #
-
-# ##### GIT 218 ##### # rh-git218, sclo-git212, sclo-git25
-ENV _GITV_ rh-git218
-RUN yum-config-manager --enable centos-sclo-rh-testing \
-  && yum install -y ${_GITV_}
-
 
 # ##### PYTHON ##### #
 
@@ -130,34 +120,35 @@ ENV _JVAV_ 11
 RUN yum install -y \
         java-${_JVAV_}-openjdk-devel
 
+# ##### Other Libs mainly for PHP ##### #
+
+### Image Magic + JPeg ###
+RUN yum install -y \
+        ImageMagick ImageMagick-devel \
+        lcms2 openjpeg2
 
 
-# ##### /usr/loca/{bin,sbin} systemctl,httpdctl,phpfpmctl,httpdLogView,phpProfSetup ##### #
-COPY httpdctl.bash /usr/local/sbin
-COPY phpfpmctl.bash /usr/local/sbin
-COPY httpdLogView.bash /usr/local/bin
-COPY systemctl.bash /usr/local/bin
-COPY phpProfSetup.bash /usr/local/sbin
-COPY javaProfSetup.bash /usr/local/sbin
-RUN chmod 0755 /usr/local/sbin/* /usr/local/bin/* && \
-    mv /usr/bin/systemctl /usr/bin/systemctl.org && \
-    ln -s /usr/local/bin/systemctl.bash /usr/bin/systemctl
+### Ghost Script ###
+RUN yum install -y \
+        ghostscript ghostscript-devel ghostscript-fonts
+
+
+
+# ##### mkdir
+RUN mkdir -p /usr/local/sbin  /usr/local/bin
+
+# ##### /usr/loca/sbin phpProfSetup,javaProfSetup ##### #
+COPY ./usr_local_sbin/* /usr/local/sbin/
+RUN chmod -R 0755 /usr/local/sbin
 
 
 # ###### ------- System Defautl, System Common -------- ##### #
 
 # ARGS
-ARG SYS_GITV=rh-git218
 ARG SYS_PYTV=38
 ARG SYS_PHPV=80
 ARG SYS_NODEV=14
 ARG SYS_JAVAV=SYS
-
-# set GitXX as system default, after remove old profile
-ENV _GITV_ ${SYS_GITV}
-RUN set -xe && \
-    /bin/rm -f /etc/profile.d/*-git*.sh && \
-    if [ "${_GITV_}" != "SYS" ];then /bin/cp /opt/rh/${_GITV_}/enable /etc/profile.d/${_GITV_}.sh; fi
 
 # set PythonXX as system default, after remove old profile
 ENV _PYTV_ ${SYS_PYTV}
@@ -186,18 +177,6 @@ RUN set -xe && \
         bash /usr/local/sbin/javaProfSetup.bash ${_JVAV_} sysprof >| /etc/profile.d/java.sh; \
     fi
 
-# ##### Other Libs mainly for PHP ##### #
-
-### Image Magic + JPeg ###
-RUN yum install -y \
-        ImageMagick ImageMagick-devel \
-        lcms2 openjpeg2
-
-
-### Ghost Script ###
-RUN yum install -y \
-        ghostscript ghostscript-devel ghostscript-fonts
-
 
 ### PHP common ###
 # https://qiita.com/erik_t/items/0b3492f38f6cd8605a4c
@@ -225,4 +204,4 @@ ENV LC_ALL en_US.UTF-8
 # ENTRYPOINT ["/bin/bash",  "-c", "[ -t 1 ] && bash || sleep infinity"]
 # CMD [ "/usr/local/sbin/httpdctl.bash" ]
 
-LABEL version="1.6.0" updated="20210528" collections="Apache 2.4, MySQL 57, Git 2.18, Python 38, NodeJS 14, PHP 80"
+LABEL version="1.8.0" updated="20210720" collections="MySQL 57, Python 38, NodeJS 14, PHP 80, Java 11"
