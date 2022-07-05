@@ -1,0 +1,249 @@
+# PHP X on Debian as root
+# docker build -f Dockerfile.dvl -t php:dvl .
+
+# From PHP
+ARG SYS_PHPV=8.0
+FROM php:${SYS_PHPV}-apache-bullseye
+# 7.4 7.3 7.2
+# docker run --name php81-dev -it --rm php:8.1-apache-bullseye bash
+
+# Automatic installation withou terminal input
+ENV DEBIAN_FRONTEND="noninteractive"
+
+USER root
+
+# for Develop tools
+RUN set -x \
+      && export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends \
+      sudo less vim git \
+      unzip zip unar \
+      wget curl procps \
+      net-tools iftop bc \
+      lsof  screen zsh \
+      nkf expect mailcap \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      ;
+# config for screen
+COPY config/.screenrc /root/
+
+# define backup and custom config dirs
+ARG BKUP_DIR=/opt/backup
+ARG CSTM_DIR=/opt/custom
+ARG CNFG_DIR=/opt/conf
+
+# for SMTP relay
+RUN set -x \
+      && export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends \
+      swaks \
+      postfix mailutils opendkim opendkim-tools \
+      libsasl2-modules sasl2-bin curl ca-certificates procps \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      ;
+RUN set -x \
+      && mkdir -p ${BKUP_DIR}/etc/postfix \
+      && mkdir -p ${CSTM_DIR}/ \
+      && mv /etc/postfix/main.cf ${BKUP_DIR}/etc/postfix/ || true \
+      && mv /etc/postfix/master.cf ${BKUP_DIR}/etc/postfix/ || true \
+      ;
+COPY config/etc_postfix_main.cf   ${CSTM_DIR}/
+COPY config/etc_postfix_master.cf ${CSTM_DIR}/
+RUN set -x \
+      && cd ${CSTM_DIR}/ \
+      && chmod 0775 etc_postfix_* \
+      ;
+
+# ##### MySQL ##### #
+RUN set -x \
+      && export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends \
+      default-mysql-client \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      ;
+
+# for PHP build
+RUN set -x \
+      && export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends \
+      build-essential \
+      libxml2-dev libssl-dev libbz2-dev \
+      libcurl4-openssl-dev libjpeg-dev libpng-dev \
+      libmcrypt-dev libreadline-dev libtidy-dev \
+      libxslt-dev autoconf \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      ;
+
+# Enhance PHP
+
+# PHP拡張を変更したい場合
+# docker-php-ext-configure, docker-php-ext-install, and docker-php-ext-enable
+# RUN docker-php-source extract \
+# 	# do important things \
+# 	&& docker-php-source delete
+# gd
+RUN set -x \
+      && export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends \
+      libfreetype6-dev \
+      libjpeg62-turbo-dev \
+      libpng-dev \
+      && docker-php-ext-configure gd --with-freetype --with-jpeg \
+      && docker-php-ext-install -j$(nproc) gd \
+      && docker-php-ext-enable gd \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      ;
+# pdo_mysql
+RUN set -x \
+      && export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends \
+      && docker-php-ext-install pdo pdo_mysql calendar intl imap zip \
+      && docker-php-ext-enable pdo pdo_mysql calendar intl imap zip \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      ;
+
+# ##### XDEBUG ##### #
+# ARG PECL_PKGS="xdebug-3.1.5" # for 8.1
+ARG PECL_PKGS="xdebug"
+ARG PECL_EXTE="xdebug"
+RUN   set -x \
+      && for p in ${PECL_PKGS};do pecl install $p;done \
+      && for p in ${PECL_EXTE};do docker-php-ext-enable $p;done \
+      ;
+
+# zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20210902/xdebug.so
+
+# backup and custom php confs
+# docker run -d -p 8880:80 -v $PWD/config/php.ini:/usr/local/etc/php/php.ini -v $PWD/config/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini  php:dvl
+RUN set -x \
+      && mkdir -p ${BKUP_DIR}/usr/local/etc/php/conf.d/ \
+      && mkdir -p ${CSTM_DIR}/ \
+      && mv /usr/local/etc/php/php.ini ${BKUP_DIR}/usr/local/etc/php/ || true \
+      && mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini ${BKUP_DIR}/usr/local/etc/php/conf.d/ || true \
+      ;
+COPY config/usr_local_etc_php_php.ini ${CSTM_DIR}/
+COPY config/usr_local_etc_php_conf.d_docker-php-ext-xdebug.ini ${CSTM_DIR}/
+RUN set -x \
+      && cd ${CSTM_DIR}/ \
+      && chmod 0775 usr_local_etc_php_* \
+      ;
+
+# Japanese Locale (no localectl, it is in systemd package)
+RUN set -x \
+      && export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends \
+      locales locales-all \
+      && locale-gen \
+      && update-locale LANG=ja_JP.UTF-8 \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      ;
+
+# ENV timezone, locale
+ENV     TZ=Asia/Tokyo \
+      LANG=ja_JP.UTF-8 \
+      LANGUAGE=ja_JP:ja \
+      LC_ALL=ja_JP.UTF-8
+
+# prepare user as 1000.1000
+ARG UIDNM=dvlusr
+ARG GIDNM=dvlgrp
+ARG UIDNO=1000
+ARG GIDNO=1000
+# add user if not, as sudoer
+RUN   set -x \
+      &&  ([[ $(getent group ${GIDNM}) ]]  || /usr/sbin/groupadd -g ${GIDNO} ${GIDNM}) \
+      &&  ([[ $(getent passwd ${UIDNM}) ]] || /usr/sbin/useradd -u ${UIDNO} -g ${GIDNM} -G root -s /bin/zsh -m ${UIDNM}) \
+      &&  ([[ -f /etc/sudoers.d/${UIDNM} ]] || echo "${UIDNM}  ALL=(ALL) NOPASSWD:ALL" >| /etc/sudoers.d/${UIDNM}) \
+      ;
+RUN   set -x \
+      mkdir -p /home/${UIDNM} \
+      ;
+
+# make dirs and link to $HOME
+# Presistent Volume
+# ARG PV_LST="/opt/var/lib/mysql /opt/share /opt/home /opt/var/log /opt/var/www /opt/smtp4dev /opt/etc /opt/usr_local_etc"
+ARG PV_LST="/home /opt/share /var/log /var/www"
+RUN for p in ${PV_LST};do \
+      mkdir -p $p \
+      && LKNM=`echo $p | tr / _` \
+      && ln -s $p /home/${UIDNM}/PV${LKNM} \
+      ;done \
+      ;
+# Shared Volume
+ARG SH_LST="/opt/work /opt/conf"
+RUN for p in ${SH_LST};do \
+      mkdir -p $p \
+      && LKNM=`echo $p | tr / _` \
+      && ln -s $p /home/${UIDNM}/SH${LKNM} \
+      ;done \
+      ;
+
+# modify Apache conf
+RUN   set -x \
+      && mkdir -p ${BKUP_DIR}/etc/apache2/sites-enabled/ \
+      && mkdir -p ${CSTM_DIR}/ \
+      && cd /etc/apache2/sites-enabled/ \
+      && mv ./* ${BKUP_DIR}/etc/apache2/sites-enabled || true \
+      ;
+COPY config/etc_apache2_sites-enabled_000-default.conf ${CSTM_DIR}/
+COPY config/etc_apache2_sites-enabled_webapp.conf ${CSTM_DIR}/
+RUN   set -x \
+      && cd ${CSTM_DIR}/ \
+      && chmod 0775 etc_apache2_sites-enabled_* \
+      ;
+
+# modify entry cmd
+ENV BKUP_D=${BKUP_DIR}
+ENV CSTM_D=${CSTM_DIR}
+ENV CNFG_D=${CNFG_DIR}
+COPY config/usr/local/bin/apache2-foreground.rev /usr/local/bin/
+COPY config/usr/local/bin/postfixctl /usr/local/bin/
+COPY config/usr/local/bin/prepare-confs.bash /usr/local/bin/
+RUN   set -x \
+      && cd /usr/local/bin \
+      && chmod 0775 apache2-foreground.rev \
+      && chmod 0755 postfixctl \
+      && chmod 0775 prepare-confs.bash \
+      && mv apache2-foreground apache2-foreground.org || true \
+      && ln -s apache2-foreground.rev apache2-foreground \
+      ;
+
+# prepare config links
+RUN   set -x \
+      && /usr/local/bin/prepare-confs.bash \
+      ;
+
+EXPOSE 81
+
+USER ${UIDNM}:${GIDNM}
+
+# make PHP-INFO as home
+COPY config/index.php /var/www/html/
+# create default home
+RUN   set -x \
+      && mkdir -p /home/${UIDNM}/www/public_html \
+      && sudo ln -s /home/${UIDNM}/www /home/ \
+      ;
+COPY config/smpl.php /home/www/public_html/index.php
+
+LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" \
+      version="1.0.0" updated="20220622" containerid="php:${SYS_PHPV}-dvlvm"
+
+# want local smtp-relay running then; /usr/loca/bin/start-postfix
+
+# docker build -f Dockerfile.dvl -t php:dvl --build-arg UIDNM=xxusr --build-arg GIDNM=xxgrp .
+# docker run -d -p 8880:80 -p 8881:81 -v $PWD/config:/opt/config -v $PWD/work:/opt/work php:dvl

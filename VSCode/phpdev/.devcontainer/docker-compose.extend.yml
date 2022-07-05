@@ -1,0 +1,9 @@
+version: '3'
+services:
+  dvlvm:
+    hostname: 'dvlvm'
+    # environment:
+    #   - HOME=/home/dvlusr
+
+# DSN: mysql:host=devdb;dbname=xxxx;charset=utf8
+# https://qiita.com/dyoshikawa/items/05d627b962da35f7d5b6

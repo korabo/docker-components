@@ -1,0 +1,10 @@
+# workspace folder
+workspace.*
+home_zshare
+
+# Docker
+Dockerfile.*
+docker-compose.yaml
+
+# Node
+# **/node_modules

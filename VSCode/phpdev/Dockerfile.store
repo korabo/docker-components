@@ -1,0 +1,25 @@
+# CentOS7 on user centos with Python36, Node14, MySQL, etc for develop
+
+# https://docs.docker.com/engine/reference/builder/
+# https://kappariver.hatenablog.jp/entry/2018/08/12/000919
+# https://qiita.com/bezeklik/items/9766003c19f9664602fe
+# https://www.saintsouth.net/blog/update-libstdcpp-on-centos6/
+
+# From Local
+FROM busybox
+
+USER root
+
+# create storea dirs
+ARG PV_LST="/opt/var/lib/mysql /opt/share /opt/home /opt/var/log /opt/var/www /opt/smtp4dev /opt/etc /opt/usr_local_etc"
+RUN  \
+for d in ${PV_LST};do \
+    mkdir -p $d; \
+    chmod -R 0777 $d; \
+done
+
+
+ENTRYPOINT ["/bin/true"]
+
+LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" \
+    version="1.0.0" updated="20220621" containerid="storage"

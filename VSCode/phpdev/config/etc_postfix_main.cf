@@ -1,0 +1,13 @@
+compatibility_level = 2
+queue_directory = /var/spool/postfix
+data_directory = /var/lib/postfix
+mail_owner = postfix
+maillog_file = /var/log/maillog
+mynetworks = 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+relayhost = [smtp4dev]
+myhostname = dvlvm
+setgid_group = postdrop
+# inet_protocols = ipv4
+mail_name = My mail relay
+smtp_use_tls = no
+smtp_sasl_auth_enable = no

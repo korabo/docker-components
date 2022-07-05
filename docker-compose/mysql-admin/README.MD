@@ -1,7 +1,12 @@
 # MySQL(MariaDB) + PhpMyAdmin
 
 ## executing containers
-- Options: <ps|up -d|down|stop|rm>
+Options:
+- ps
+- up -d
+- down
+- stop
+- rm
 ### start as daemon
 ```
 docker-compose -f mysql-admin.yaml up -d
@@ -20,13 +25,23 @@ docker-compose -f mysql-admin.yaml rm
 ```
 ---
 ## How to Use MySQL DB
-- from Browser (PHP MyAdmin)
+- from local host
+  - MySQL-WorkBenchなどのツール
+```
+  サーバ       localhost  (127.0.0.1)
+  port         13306
+  ユーザ名     admin
+  パスワード   admin
+  データベース mydb
+```
+- from local browser (PHP MyAdmin)
   - http://docker-machine-ip:18080/
   - 例） http://localhost:18080/
   - 例） http://192.168.199.11:18080/
 ```
   データベース種類 MySQL
-  サーバ       lcl-db  (MySQLのコンテナ名、DNS名、IP:port)
+  サーバ       lcl-db  (MySQLのコンテナ名)
+  port         3306
   ユーザ名     admin
   パスワード   admin
   データベース mydb
@@ -34,6 +49,7 @@ docker-compose -f mysql-admin.yaml rm
 - from Container
 ```
   サーバ       lcl-db  (MySQLのコンテナ名)
+  port         3306
   ユーザ名     admin
   パスワード   admin
   データベース mydb

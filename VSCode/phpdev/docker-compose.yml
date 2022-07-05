@@ -1,0 +1,125 @@
+version: "3"
+
+services:
+
+  data-store:
+    # image: busybox
+    build:
+      context: ./
+      dockerfile: Dockerfile.store
+    volumes:
+      # ARG PV_LST="/opt/var/lib/mysql /opt/share /opt/home /opt/var/log /opt/var/www /opt/smtp4dev /opt/etc /opt/usr_local_etc"
+      - "mydata:/opt/var/lib/mysql"
+      - "myhome:/opt/home"
+      - "myshare:/opt/share"
+      - "mylog:/opt/var/log"
+      - "www:/opt/var/www"
+      - "mysmtp:/opt/smtp4dev"
+      - "etc:/opt/etc"
+      - "usr_local_etc:/opt/usr_local_etc"
+
+  mysql57:
+    # defined like RDS as 2020
+    image: mysql:5.7
+    hostname: "mysql57"
+    restart: always
+    command:
+    # table名を小文字に
+    - "--lower_case_table_names=1"
+    # 5.7で「ONLY_FULL_GROUP_BY」を外す
+    - "--sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+    # 5.6 "                                                                                                                   NO_ENGINE_SUBSTITUTION"
+    # 5.7 "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+    environment:
+      MYSQL_DATABASE: "dvldb"
+      MYSQL_USER: "mysql"
+      MYSQL_PASSWORD: "mysql"
+      MYSQL_ROOT_PASSWORD: "root"
+      # MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "23306:3306"
+    volumes:
+      - "mydata:/var/lib/mysql"
+      - "myshare:/opt/share"
+    # networks:
+    #   webfront:
+
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    hostname: 'smtp4dev'
+    restart: always
+    ports:
+      # Change the number before : to the port the web interface should be accessible on
+      - '25080:80'
+      # Change the number before : to the port the SMTP server should be accessible on
+      - '25025:25'
+      # Change the number before : to the port the IMAP server should be accessible on
+      - '25143:143'
+    volumes:
+      # This is where smtp4dev stores the database..
+      - "mysmtp:/smtp4dev"
+      - "myshare:/opt/share"
+    environment:
+      # Uncomment to customise these settings
+      #Specifies the virtual path from web server root where SMTP4DEV web interface will be hosted. e.g. "/" or "/smtp4dev"
+      #- ServerOptions__BasePath=/smtp4dev
+      #Specifies the server hostname. Used in auto-generated TLS certificate if enabled.
+      - ServerOptions__HostName=smtp4dev
+      #Specifies the path where the database will be stored relative to APPDATA env var on Windows or XDG_CONFIG_HOME on non-Windows. Specify "" to use an in memory database.
+      #- ServerOptions__Database=database.db
+      #Specifies the number of messages to keep
+      #- ServerOptions__NumberOfMessagesToKeep=100
+      #Specifies the number of sessions to keep
+      #- ServerOptions__NumberOfSessionsToKeep=100
+      #Specifies the TLS mode to use. None=Off. StartTls=On demand if client supports STARTTLS. ImplicitTls=TLS as soon as connection is established.
+      - ServerOptions__TlsMode=StartTls
+      #Specifies the TLS certificate to use if TLS is enabled/requested. Specify "" to use an auto-generated self-signed certificate (then see console output on first startup)
+      #- ServerOptions__TlsCertificate=
+      #Sets the name of the SMTP server that will be used to relay messages or "" if messages should not be relayed
+      #- RelayOptions__SmtpServer=mailhog
+      #Sets the port number for the SMTP server used to relay messages.
+      #- RelayOptions__SmtpPort=1025
+      #Specifies a comma separated list of recipient addresses for which messages will be relayed. An empty list means that no messages are relayed.
+      #- RelayOptions__AllowedEmailsString=
+      #Specifies the address used in MAIL FROM when relaying messages. (Sender address in message headers is left unmodified). The sender of each message is used if not specified.
+      #- RelayOptions__SenderAddress=
+      #The username for the SMTP server used to relay messages. If "" no authentication is attempted.
+      #- RelayOptions__Login=
+      #The password for the SMTP server used to relay messages
+      #- RelayOptions__Password=
+      #Specifies the port the IMAP server will listen on - allows standard email clients to view/retrieve messages
+      #"ServerOptions__ImapPort":  143
+
+  dvlvm:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dvl
+      # args:
+      # - SYS_PHPV=8.0
+    hostname: 'dvlvm'
+    # sysctls:
+    #   fs.inotify.max_user_watches: 524288
+    volumes:
+      - "myhome:/home"
+      - "myshare:/opt/share"
+      - "mylog:/var/log"
+      - "www:/var/www"
+      - "etc:/etc"
+      - "usr_local_etc:/usr/local/etc"
+      - "./work:/opt/work"
+      - "./opt_conf:/opt/conf"
+      # - "./config/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
+      # - "./config/php.ini:/usr/local/etc/php/php.ini"
+    ports:
+      - 127.0.0.1:28080:80
+      - 127.0.0.1:28081:81
+
+volumes:
+  mydata:
+  mysmtp:
+  myhome:
+  myshare:
+  mylog:
+  www:
+  etc:
+  usr_local_etc:
