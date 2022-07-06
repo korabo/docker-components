@@ -103,16 +103,22 @@ RUN set -x \
       && apt-get clean \
       && rm -rf /var/lib/apt/lists/* \
       ;
-# pdo_mysql
+# pdo, etc
 RUN set -x \
       && export DEBIAN_FRONTEND=noninteractive \
       && apt-get update \
       && apt-get install -y --no-install-recommends \
-      && docker-php-ext-install pdo pdo_mysql calendar intl imap zip \
-      && docker-php-ext-enable pdo pdo_mysql calendar intl imap zip \
+      libzip-dev \
+      && docker-php-ext-install pdo pdo_mysql calendar intl zip \
+      && docker-php-ext-enable pdo pdo_mysql calendar intl zip \
       && apt-get clean \
       && rm -rf /var/lib/apt/lists/* \
       ;
+# # IMAP TODO: some package needed
+# RUN set -x \
+#       && docker-php-ext-install imap \
+#       && docker-php-ext-enable imap \
+#       ;
 
 # ##### XDEBUG ##### #
 # ARG PECL_PKGS="xdebug-3.1.5" # for 8.1

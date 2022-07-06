@@ -70,6 +70,7 @@ http://localhost:28081/
 
 Tips & Trics
 ==========
+## パッケージインストール
 Docker内のパッケージインストールでは、入力が必要な処理は実行不可なので、以下のように「Debian Non-Interactive」指定をする。
 
 ```
@@ -82,6 +83,12 @@ RUN set -x \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   ;
+```
+
+## PHP Extention
+docker-php-ext-installで導入可能なPHP拡張
+```
+bcmath bz2 calendar ctype curl dba dom enchant exif ffi fileinfo filter ftp gd gettext gmp hash iconv imap intl json ldap mbstring mysqli oci8 odbc opcache pcntl pdo pdo_dblib pdo_firebird pdo_mysql pdo_oci pdo_odbc pdo_pgsql pdo_sqlite pgsql phar posix pspell readline reflection session shmop simplexml snmp soap sockets sodium spl standard sysvmsg sysvsem sysvshm tidy tokenizer xml xmlreader xmlwriter xsl zend_test zip
 ```
 
 ## Dockerファイルから単独ビルドする方法
