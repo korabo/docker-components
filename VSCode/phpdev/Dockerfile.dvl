@@ -68,7 +68,11 @@ RUN set -x \
       && rm -rf /var/lib/apt/lists/* \
       ;
 
+# Apache rewrite
+RUN a2enmod rewrite
+
 # for PHP build
+# https://gist.github.com/hoandang/88bfb1e30805df6d1539640fc1719d12
 RUN set -x \
       && export DEBIAN_FRONTEND=noninteractive \
       && apt-get update \
@@ -90,14 +94,16 @@ RUN set -x \
 # 	# do important things \
 # 	&& docker-php-source delete
 # gd
+ARG GD_ARG='--with-freetype --with-jpeg' # PHP7.4 or abave
+# ARG GD_ARG='--with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/' # 7.3 or below'
 RUN set -x \
       && export DEBIAN_FRONTEND=noninteractive \
       && apt-get update \
       && apt-get install -y --no-install-recommends \
-      libfreetype6-dev \
-      libjpeg62-turbo-dev \
-      libpng-dev \
-      && docker-php-ext-configure gd --with-freetype --with-jpeg \
+            libfreetype6-dev \
+            libjpeg62-turbo-dev \
+            libpng-dev \
+      && docker-php-ext-configure gd ${GD_ARG} \
       && docker-php-ext-install -j$(nproc) gd \
       && docker-php-ext-enable gd \
       && apt-get clean \
@@ -108,17 +114,27 @@ RUN set -x \
       && export DEBIAN_FRONTEND=noninteractive \
       && apt-get update \
       && apt-get install -y --no-install-recommends \
-      libzip-dev \
-      && docker-php-ext-install pdo pdo_mysql calendar intl zip \
-      && docker-php-ext-enable pdo pdo_mysql calendar intl zip \
+            libzip-dev libicu-dev \
+      && docker-php-ext-install -j$(nproc) intl \
+      && docker-php-ext-install \
+            iconv pdo pdo_mysql calendar zip \
       && apt-get clean \
       && rm -rf /var/lib/apt/lists/* \
       ;
-# # IMAP TODO: some package needed
-# RUN set -x \
-#       && docker-php-ext-install imap \
-#       && docker-php-ext-enable imap \
-#       ;
+# # COMPOSER
+# RUN curl -sS https://getcomposer.org/installer \
+#       | php -- --install-dir=/usr/bin/ --filename=composer
+# # IMAP
+RUN set -x \
+      && export DEBIAN_FRONTEND=noninteractive \
+      && apt-get update \
+      && apt-get install -y --no-install-recommends \
+            libc-client-dev libkrb5-dev \
+      && docker-php-ext-configure \
+            imap --with-kerberos --with-imap-ssl \
+      && docker-php-ext-install -j$(nproc) imap \
+      && docker-php-ext-enable imap \
+      ;
 
 # ##### XDEBUG ##### #
 # ARG PECL_PKGS="xdebug-3.1.5" # for 8.1
