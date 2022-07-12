@@ -117,7 +117,9 @@ RUN set -x \
             libzip-dev libicu-dev \
       && docker-php-ext-install -j$(nproc) intl \
       && docker-php-ext-install \
-            iconv pdo pdo_mysql calendar zip \
+            iconv pdo pdo_mysql mysqli calendar zip \
+      && docker-php-ext-enable \
+            intl iconv pdo pdo_mysql mysqli calendar zip \
       && apt-get clean \
       && rm -rf /var/lib/apt/lists/* \
       ;

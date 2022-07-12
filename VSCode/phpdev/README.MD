@@ -91,6 +91,13 @@ docker-php-ext-installで導入可能なPHP拡張
 bcmath bz2 calendar ctype curl dba dom enchant exif ffi fileinfo filter ftp gd gettext gmp hash iconv imap intl json ldap mbstring mysqli oci8 odbc opcache pcntl pdo pdo_dblib pdo_firebird pdo_mysql pdo_oci pdo_odbc pdo_pgsql pdo_sqlite pgsql phar posix pspell readline reflection session shmop simplexml snmp soap sockets sodium spl standard sysvmsg sysvsem sysvshm tidy tokenizer xml xmlreader xmlwriter xsl zend_test zip
 ```
 
+## 試しで拡張モジュールを読込んでみるときの注意
+/usr/local/etc/以外は永続化されないので、確認できたらDockerfileに記述してビルドしなおすことが必要。
+その前に、以下のように「sudo -E」を指定して環境変数を読込んだ状態でないと正しく動作しないので、注意すること。
+```bash
+sudo -E /usr/local/bin/docker-php-ext-enable mysqli
+```
+
 ## Dockerファイルから単独ビルドする方法
 例：Dockerfile.dvl
 ```bash
