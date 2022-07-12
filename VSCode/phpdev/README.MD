@@ -1,6 +1,8 @@
 phpdev
 ==========
 
+Ver. 2022-07-12 ST(KORABO/SPIGA)
+
 構成
 ----------
 4つのコンテナで構成される(docker-compose.ymlにて定義)
