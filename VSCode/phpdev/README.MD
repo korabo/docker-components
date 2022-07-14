@@ -1,7 +1,8 @@
 phpdev
 ==========
 
-Ver. 2022-07-12 ST(KORABO/SPIGA)
+Ver. 2022-07-12 ST(KORABO/SPIGA) 安定バージョン
+Ver. 2022-07-14 ST(KORABO/SPIGA) デザイン概要図や説明文を追加・修正
 
 構成
 ----------
