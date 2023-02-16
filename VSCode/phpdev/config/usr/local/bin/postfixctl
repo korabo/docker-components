@@ -1,0 +1,13 @@
+#!/bin/bash
+CMD=${1:-restart}
+# start, stop, reload, abort, flush, check, status, set-permissions, upgrade-configuration, logrotate
+case $CMD in
+    restart)
+        sudo /usr/sbin/postfix stop
+        sleep 5
+        sudo /usr/sbin/postfix start
+        ;;
+    *)
+        sudo /usr/sbin/postfix $CMD
+        ;;
+esac
