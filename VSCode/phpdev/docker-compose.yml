@@ -22,6 +22,7 @@ services:
   mysql57:
     # defined like RDS as 2020
     image: mysql:5.7
+    platform: linux/amd64
     hostname: "mysql57"
     restart: always
     command:
@@ -47,7 +48,9 @@ services:
       - "myshare:/opt/share"
 
   smtp4dev:
-    image: rnwood/smtp4dev:v3
+    # v3.1 - win/amd64m linux/amd64,arm64 
+    image: rnwood/smtp4dev:v3.1
+    # platform: linux/amd64
     hostname: "smtp4dev"
     restart: always
     ports:
