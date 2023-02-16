@@ -1,3 +1,5 @@
 **/tmp/*
 **/_O_/*
-/opt_conf/
+/opt_conf/*
+!/opt_conf/
+!/opt_conf/.gitkeep

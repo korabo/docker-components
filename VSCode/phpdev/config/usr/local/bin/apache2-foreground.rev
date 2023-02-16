@@ -1,0 +1,9 @@
+#!/bin/bash
+# prepare conf links
+bash /usr/local/bin/prepare-confs.bash
+# start postfix
+[[ -f /usr/local/bin/postfixctl ]] && bash /usr/local/bin/postfixctl start
+# start apache2
+bash /usr/local/bin/apache2-foreground.org "$@" &
+# sleep infinity
+sleep infinity
